@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { FiShoppingCart, FiUser, FiMenu, FiX, FiLogOut, FiChevronDown } from 'react-icons/fi';
+import { FiShoppingCart, FiUser, FiMenu, FiX, FiLogOut, FiChevronDown, FiCamera } from 'react-icons/fi';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
@@ -21,6 +21,7 @@ const Navbar = () => {
   const navLinks = [
     { to: '/', label: 'Home' },
     { to: '/menu', label: 'Menu' },
+    { to: '/scan?table=T1', label: 'Scan QR', icon: FiCamera },
     ...(user ? [{ to: '/orders', label: 'My Orders' }] : []),
   ];
 
@@ -43,9 +44,10 @@ const Navbar = () => {
               <motion.div key={link.to} whileHover={{ y: -2 }}>
                 <Link
                   to={link.to}
-                  className="hover:text-primary-400 transition-colors relative group"
+                  className="hover:text-primary-400 transition-colors relative group flex items-center space-x-1"
                 >
-                  {link.label}
+                  {link.icon && <link.icon className="text-sm" />}
+                  <span>{link.label}</span>
                   <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary-400 group-hover:w-full transition-all duration-300" />
                 </Link>
               </motion.div>
@@ -170,10 +172,11 @@ const Navbar = () => {
                   >
                     <Link
                       to={link.to}
-                      className="block hover:text-primary-400 py-1"
+                      className="block hover:text-primary-400 py-1 flex items-center space-x-2"
                       onClick={() => setMobileMenuOpen(false)}
                     >
-                      {link.label}
+                      {link.icon && <link.icon className="text-sm" />}
+                      <span>{link.label}</span>
                     </Link>
                   </motion.div>
                 ))}

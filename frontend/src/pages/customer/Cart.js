@@ -1,15 +1,14 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { FiMinus, FiPlus, FiTrash2, FiShoppingBag, FiArrowLeft } from 'react-icons/fi';
+import { FiMinus, FiPlus, FiTrash2, FiShoppingBag, FiArrowLeft, FiMapPin } from 'react-icons/fi';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useCart } from '../../context/CartContext';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
 
 const Cart = () => {
-  const { items, updateQuantity, removeItem, totalPrice, clearCart } = useCart();
-  const [orderType, setOrderType] = useState('dine_in');
-  const [tableNumber, setTableNumber] = useState('');
+  const { items, updateQuantity, removeItem, totalPrice, clearCart, tableNumber, setTableNumber } = useCart();
+  const [orderType, setOrderType] = useState(tableNumber ? 'dine_in' : 'dine_in');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -32,6 +31,7 @@ const Cart = () => {
         tableNumber: orderType === 'dine_in' ? tableNumber : undefined,
       });
       await clearCart();
+      setTableNumber('');
       toast.success('Order placed successfully!');
       navigate('/orders');
     } catch (error) {
@@ -193,14 +193,31 @@ const Cart = () => {
                     transition={{ duration: 0.3 }}
                     className="mb-6 overflow-hidden"
                   >
-                    <label className="block text-sm font-medium text-secondary-700 mb-2">Table Number</label>
-                    <input
-                      type="text"
-                      value={tableNumber}
-                      onChange={(e) => setTableNumber(e.target.value)}
-                      className="w-full px-4 py-2 border border-secondary-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none"
-                      placeholder="e.g. T1"
-                    />
+                    {tableNumber ? (
+                      <div className="flex items-center justify-between bg-primary-50 border border-primary-200 rounded-lg px-4 py-3">
+                        <div className="flex items-center space-x-2 text-primary-700">
+                          <FiMapPin className="text-primary-500" />
+                          <span>Table <strong>{tableNumber}</strong> (from QR scan)</span>
+                        </div>
+                        <button
+                          onClick={() => setTableNumber('')}
+                          className="text-sm text-primary-500 hover:text-primary-700 underline"
+                        >
+                          Change
+                        </button>
+                      </div>
+                    ) : (
+                      <>
+                        <label className="block text-sm font-medium text-secondary-700 mb-2">Table Number</label>
+                        <input
+                          type="text"
+                          value={tableNumber}
+                          onChange={(e) => setTableNumber(e.target.value)}
+                          className="w-full px-4 py-2 border border-secondary-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none"
+                          placeholder="e.g. T1"
+                        />
+                      </>
+                    )}
                   </motion.div>
                 )}
               </AnimatePresence>

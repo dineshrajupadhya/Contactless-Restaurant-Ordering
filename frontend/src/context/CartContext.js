@@ -16,7 +16,17 @@ export const useCart = () => {
 export const CartProvider = ({ children }) => {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [tableNumber, setTableNumberState] = useState(() => localStorage.getItem('tableNumber') || '');
   const { token } = useAuth();
+
+  const setTableNumber = (num) => {
+    setTableNumberState(num);
+    if (num) {
+      localStorage.setItem('tableNumber', num);
+    } else {
+      localStorage.removeItem('tableNumber');
+    }
+  };
 
   const fetchCart = useCallback(async () => {
     if (!token) {
@@ -102,6 +112,8 @@ export const CartProvider = ({ children }) => {
     clearCart,
     itemCount,
     totalPrice,
+    tableNumber,
+    setTableNumber,
   };
 
   return (

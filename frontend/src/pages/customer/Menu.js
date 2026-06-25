@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
-import { FiSearch, FiPlus, FiMinus } from 'react-icons/fi';
+import { useSearchParams, Link } from 'react-router-dom';
+import { FiSearch, FiPlus, FiMinus, FiMapPin } from 'react-icons/fi';
 import { motion, AnimatePresence } from 'framer-motion';
 import api from '../../services/api';
 import { useCart } from '../../context/CartContext';
@@ -24,8 +24,15 @@ const Menu = () => {
   const [selectedCategory, setSelectedCategory] = useState(searchParams.get('category') || 'all');
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
-  const { items, addToCart, updateQuantity } = useCart();
+  const { items, addToCart, updateQuantity, tableNumber, setTableNumber } = useCart();
   const { token } = useAuth();
+
+  useEffect(() => {
+    const table = searchParams.get('table');
+    if (table) {
+      setTableNumber(table);
+    }
+  }, [searchParams, setTableNumber]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -86,6 +93,24 @@ const Menu = () => {
           className="mb-8"
         >
           <h1 className="text-3xl font-bold text-secondary-900 mb-4">Our Menu</h1>
+          <AnimatePresence>
+            {tableNumber && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                className="mb-4"
+              >
+                <div className="inline-flex items-center space-x-2 bg-primary-50 border border-primary-200 text-primary-700 px-4 py-2 rounded-lg text-sm">
+                  <FiMapPin className="text-primary-500" />
+                  <span>Ordering for <strong>Table {tableNumber}</strong></span>
+                  <button onClick={() => setTableNumber('')} className="ml-2 text-primary-400 hover:text-primary-600 underline">
+                    Change
+                  </button>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
           <div className="relative max-w-md">
             <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-secondary-400" />
             <motion.input

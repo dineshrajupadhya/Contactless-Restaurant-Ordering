@@ -35,7 +35,8 @@ exports.generateTableQR = async (req, res, next) => {
       return res.status(404).json({ success: false, message: 'Table not found' });
     }
 
-    const scanUrl = `http://localhost:3000/scan?table=${table.table_number}`;
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+    const scanUrl = `${frontendUrl}/scan?table=${table.table_number}`;
 
     try {
       const qrDataUrl = await QRCode.toDataURL(scanUrl, { width: 300, margin: 2 });
