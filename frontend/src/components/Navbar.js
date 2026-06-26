@@ -5,9 +5,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 
+const tables = ['T1', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'T8', 'T9', 'T10'];
+
 const Navbar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [qrMenuOpen, setQrMenuOpen] = useState(false);
   const { user, logout, isAdmin } = useAuth();
   const { itemCount } = useCart();
   const navigate = useNavigate();
@@ -21,7 +24,6 @@ const Navbar = () => {
   const navLinks = [
     { to: '/', label: 'Home' },
     { to: '/menu', label: 'Menu' },
-    { to: '/scan?table=T1', label: 'Scan QR', icon: FiCamera },
     ...(user ? [{ to: '/orders', label: 'My Orders' }] : []),
   ];
 
@@ -44,14 +46,55 @@ const Navbar = () => {
               <motion.div key={link.to} whileHover={{ y: -2 }}>
                 <Link
                   to={link.to}
-                  className="hover:text-primary-400 transition-colors relative group flex items-center space-x-1"
+                  className="hover:text-primary-400 transition-colors relative group"
                 >
-                  {link.icon && <link.icon className="text-sm" />}
                   <span>{link.label}</span>
                   <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary-400 group-hover:w-full transition-all duration-300" />
                 </Link>
               </motion.div>
             ))}
+
+            {/* Scan QR Dropdown */}
+            <div className="relative">
+              <motion.button
+                whileHover={{ y: -2 }}
+                onClick={() => setQrMenuOpen(!qrMenuOpen)}
+                className="hover:text-primary-400 transition-colors flex items-center space-x-1"
+              >
+                <FiCamera className="text-sm" />
+                <span>Scan QR</span>
+                <motion.span animate={{ rotate: qrMenuOpen ? 180 : 0 }}>
+                  <FiChevronDown />
+                </motion.span>
+              </motion.button>
+              <AnimatePresence>
+                {qrMenuOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                    transition={{ duration: 0.2 }}
+                    className="absolute left-0 mt-2 w-48 bg-white text-secondary-900 rounded-md shadow-lg py-1 z-50"
+                  >
+                    <div className="px-4 py-2 border-b">
+                      <p className="font-medium text-sm">Select a Table</p>
+                    </div>
+                    <div className="grid grid-cols-2 gap-1 p-2">
+                      {tables.map((table) => (
+                        <Link
+                          key={table}
+                          to={`/scan?table=${table}`}
+                          className="block px-3 py-2 text-sm rounded hover:bg-primary-50 hover:text-primary-600 text-center font-medium transition-colors"
+                          onClick={() => setQrMenuOpen(false)}
+                        >
+                          {table}
+                        </Link>
+                      ))}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
           </div>
 
           <div className="flex items-center space-x-4">
@@ -172,21 +215,44 @@ const Navbar = () => {
                   >
                     <Link
                       to={link.to}
-                      className="block hover:text-primary-400 py-1 flex items-center space-x-2"
+                      className="block hover:text-primary-400 py-1"
                       onClick={() => setMobileMenuOpen(false)}
                     >
-                      {link.icon && <link.icon className="text-sm" />}
-                      <span>{link.label}</span>
+                      {link.label}
                     </Link>
                   </motion.div>
                 ))}
+
+                {/* Mobile QR Tables */}
+                <motion.div
+                  initial={{ x: -20, opacity: 0 }}
+                  animate={{ x: 0, opacity: 1 }}
+                  transition={{ delay: navLinks.length * 0.1 }}
+                >
+                  <div className="flex items-center space-x-1 text-primary-400 py-1">
+                    <FiCamera className="text-sm" />
+                    <span className="font-medium">Scan QR</span>
+                  </div>
+                  <div className="grid grid-cols-5 gap-2 mt-2 ml-6">
+                    {tables.map((table) => (
+                      <Link
+                        key={table}
+                        to={`/scan?table=${table}`}
+                        className="block px-2 py-1.5 text-xs text-center bg-secondary-800 hover:bg-primary-500 rounded transition-colors"
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
+                        {table}
+                      </Link>
+                    ))}
+                  </div>
+                </motion.div>
 
                 {user ? (
                   <>
                     <motion.div
                       initial={{ x: -20, opacity: 0 }}
                       animate={{ x: 0, opacity: 1 }}
-                      transition={{ delay: navLinks.length * 0.1 }}
+                      transition={{ delay: (navLinks.length + 1) * 0.1 }}
                     >
                       <Link to="/cart" className="block hover:text-primary-400 py-1" onClick={() => setMobileMenuOpen(false)}>
                         Cart ({itemCount})
@@ -196,7 +262,7 @@ const Navbar = () => {
                       <motion.div
                         initial={{ x: -20, opacity: 0 }}
                         animate={{ x: 0, opacity: 1 }}
-                        transition={{ delay: (navLinks.length + 1) * 0.1 }}
+                        transition={{ delay: (navLinks.length + 2) * 0.1 }}
                       >
                         <Link to="/admin" className="block hover:text-primary-400 py-1" onClick={() => setMobileMenuOpen(false)}>
                           Admin Panel
@@ -206,7 +272,7 @@ const Navbar = () => {
                     <motion.button
                       initial={{ x: -20, opacity: 0 }}
                       animate={{ x: 0, opacity: 1 }}
-                      transition={{ delay: (navLinks.length + 2) * 0.1 }}
+                      transition={{ delay: (navLinks.length + 3) * 0.1 }}
                       onClick={handleLogout}
                       className="text-left text-red-400 hover:text-red-300 py-1"
                     >
@@ -218,14 +284,14 @@ const Navbar = () => {
                     <motion.div
                       initial={{ x: -20, opacity: 0 }}
                       animate={{ x: 0, opacity: 1 }}
-                      transition={{ delay: navLinks.length * 0.1 }}
+                      transition={{ delay: (navLinks.length + 1) * 0.1 }}
                     >
                       <Link to="/login" className="block hover:text-primary-400 py-1" onClick={() => setMobileMenuOpen(false)}>Login</Link>
                     </motion.div>
                     <motion.div
                       initial={{ x: -20, opacity: 0 }}
                       animate={{ x: 0, opacity: 1 }}
-                      transition={{ delay: (navLinks.length + 1) * 0.1 }}
+                      transition={{ delay: (navLinks.length + 2) * 0.1 }}
                     >
                       <Link
                         to="/signup"
