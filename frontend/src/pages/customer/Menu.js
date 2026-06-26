@@ -199,13 +199,23 @@ const Menu = () => {
                     className="bg-white rounded-xl shadow-md overflow-hidden"
                   >
                     <div className="h-48 bg-gradient-to-br from-primary-300 to-primary-500 flex items-center justify-center relative overflow-hidden">
-                      <motion.span
-                        className="text-white text-5xl font-bold"
-                        whileHover={{ scale: 1.3, rotate: 10 }}
-                        transition={{ type: 'spring', stiffness: 300 }}
-                      >
-                        {product.name.charAt(0)}
-                      </motion.span>
+                      {product.image_url ? (
+                        <img
+                          src={product.image_url}
+                          alt={product.name}
+                          className="w-full h-full object-cover"
+                          onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }}
+                        />
+                      ) : null}
+                      <div className={`${product.image_url ? 'hidden' : 'flex'} w-full h-full items-center justify-center`}>
+                        <motion.span
+                          className="text-white text-5xl font-bold"
+                          whileHover={{ scale: 1.3, rotate: 10 }}
+                          transition={{ type: 'spring', stiffness: 300 }}
+                        >
+                          {product.name.charAt(0)}
+                        </motion.span>
+                      </div>
                       <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full">
                         <span className="text-primary-600 font-bold text-sm">${product.price?.toFixed(2)}</span>
                       </div>
