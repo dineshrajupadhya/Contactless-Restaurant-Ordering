@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { FiUsers, FiShoppingBag, FiDollarSign, FiClock } from 'react-icons/fi';
+import { FiUsers, FiShoppingBag, FiDollarSign, FiClock, FiStar, FiTrendingUp } from 'react-icons/fi';
 import { motion } from 'framer-motion';
 import api from '../../services/api';
 import { CountUp, FadeIn, StaggerContainer, StaggerItem } from '../../components/PageTransition';
@@ -8,6 +8,7 @@ import { CountUp, FadeIn, StaggerContainer, StaggerItem } from '../../components
 const AdminDashboard = () => {
   const [stats, setStats] = useState(null);
   const [recentOrders, setRecentOrders] = useState([]);
+  const [topProducts, setTopProducts] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => { fetchDashboard(); }, []);
@@ -18,6 +19,7 @@ const AdminDashboard = () => {
       const data = response.data.dashboard || response.data;
       setStats(data);
       setRecentOrders(data.recentOrders || []);
+      setTopProducts(data.topProducts || []);
     } catch (error) {
       console.error('Failed to fetch dashboard:', error);
     } finally {
@@ -45,11 +47,12 @@ const AdminDashboard = () => {
     { label: 'Total Orders', value: stats?.totalOrders || 0, icon: FiShoppingBag, color: 'bg-green-500', suffix: '' },
     { label: 'Total Revenue', value: stats?.totalRevenue || 0, icon: FiDollarSign, color: 'bg-primary-500', suffix: '', prefix: '$', decimals: 2 },
     { label: 'Pending Orders', value: stats?.pendingOrders || 0, icon: FiClock, color: 'bg-yellow-500', suffix: '' },
+    { label: "Today's Orders", value: stats?.todayOrders || 0, icon: FiTrendingUp, color: 'bg-purple-500', suffix: '' },
   ];
 
   return (
     <div className="space-y-6">
-      <StaggerContainer className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" staggerDelay={0.1}>
+      <StaggerContainer className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6" staggerDelay={0.1}>
         {statCards.map((card, index) => {
           const Icon = card.icon;
           return (
@@ -140,6 +143,77 @@ const AdminDashboard = () => {
           </div>
         </div>
       </FadeIn>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <FadeIn delay={0.4}>
+          <div className="bg-white rounded-xl shadow-md overflow-hidden">
+            <div className="p-6 border-b">
+              <h2 className="text-lg font-semibold text-secondary-900 flex items-center space-x-2">
+                <FiStar className="text-yellow-500" />
+                <span>Top Products</span>
+              </h2>
+            </div>
+            <div className="p-6">
+              {topProducts.length > 0 ? (
+                <div className="space-y-4">
+                  {topProducts.map((product, i) => (
+                    <motion.div
+                      key={i}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.5 + i * 0.1 }}
+                      className="flex items-center justify-between"
+                    >
+                      <div className="flex items-center space-x-3">
+                        <span className={`w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-bold ${
+                          i === 0 ? 'bg-yellow-500' : i === 1 ? 'bg-gray-400' : i === 2 ? 'bg-orange-400' : 'bg-secondary-300'
+                        }`}>
+                          {i + 1}
+                        </span>
+                        <div>
+                          <p className="font-medium text-secondary-800">{product.name}</p>
+                          <p className="text-xs text-secondary-500">{product.total_quantity} sold</p>
+                        </div>
+                      </div>
+                      <span className="font-semibold text-secondary-900">${product.total_revenue?.toFixed(2)}</span>
+                    </motion.div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-secondary-500 text-center py-4">No product data yet</p>
+              )}
+            </div>
+          </div>
+        </FadeIn>
+
+        <FadeIn delay={0.5}>
+          <div className="bg-white rounded-xl shadow-md overflow-hidden">
+            <div className="p-6 border-b">
+              <h2 className="text-lg font-semibold text-secondary-900">Order Summary</h2>
+            </div>
+            <div className="p-6 space-y-4">
+              <div className="flex justify-between items-center py-3 border-b">
+                <span className="text-secondary-600">Total Revenue</span>
+                <span className="text-xl font-bold text-green-600">${stats?.totalRevenue?.toFixed(2) || '0.00'}</span>
+              </div>
+              <div className="flex justify-between items-center py-3 border-b">
+                <span className="text-secondary-600">Today's Orders</span>
+                <span className="text-xl font-bold text-primary-500">{stats?.todayOrders || 0}</span>
+              </div>
+              <div className="flex justify-between items-center py-3 border-b">
+                <span className="text-secondary-600">Pending Orders</span>
+                <span className="text-xl font-bold text-yellow-500">{stats?.pendingOrders || 0}</span>
+              </div>
+              <div className="flex justify-between items-center py-3">
+                <span className="text-secondary-600">Avg. Order Value</span>
+                <span className="text-xl font-bold text-secondary-900">
+                  ${stats?.totalOrders > 0 ? (stats?.totalRevenue / stats?.totalOrders).toFixed(2) : '0.00'}
+                </span>
+              </div>
+            </div>
+          </div>
+        </FadeIn>
+      </div>
     </div>
   );
 };
