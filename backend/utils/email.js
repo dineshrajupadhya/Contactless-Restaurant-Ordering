@@ -1,12 +1,12 @@
 const nodemailer = require('nodemailer');
 
-let transporter = null;
-
 const getTransporter = async () => {
-  if (transporter) return transporter;
+  if (process.env.RESEND_API_KEY) {
+    return null;
+  }
 
   if (process.env.SMTP_HOST) {
-    transporter = nodemailer.createTransport({
+    return nodemailer.createTransport({
       host: process.env.SMTP_HOST,
       port: parseInt(process.env.SMTP_PORT || '587'),
       secure: process.env.SMTP_SECURE === 'true',
@@ -15,11 +15,10 @@ const getTransporter = async () => {
         pass: process.env.SMTP_PASS,
       },
     });
-    return transporter;
   }
 
   const testAccount = await nodemailer.createTestAccount();
-  transporter = nodemailer.createTransport({
+  const transport = nodemailer.createTransport({
     host: 'smtp.ethereal.email',
     port: 587,
     secure: false,
@@ -29,12 +28,55 @@ const getTransporter = async () => {
     },
   });
   console.log('📧 Using Ethereal test email:', testAccount.user);
-  return transporter;
+  return transport;
+};
+
+const sendEmailViaResend = async ({ to, subject, html }) => {
+  const response = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${process.env.RESEND_API_KEY}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      from: process.env.EMAIL_FROM || 'Contactless Cafe <onboarding@resend.dev>',
+      to: [to],
+      subject,
+      html,
+    }),
+  });
+
+  if (!response.ok) {
+    const error = await response.text();
+    throw new Error(`Resend API error: ${response.status} - ${error}`);
+  }
+
+  return await response.json();
+};
+
+const sendEmail = async ({ to, subject, html }) => {
+  if (process.env.RESEND_API_KEY) {
+    return await sendEmailViaResend({ to, subject, html });
+  }
+
+  const transport = await getTransporter();
+  const info = await transport.sendMail({
+    from: process.env.EMAIL_FROM || '"Contactless Cafe" <orders@contactlesscafe.com>',
+    to,
+    subject,
+    html,
+  });
+
+  const previewUrl = nodemailer.getTestMessageUrl(info);
+  if (previewUrl) {
+    console.log('📧 Email preview URL:', previewUrl);
+  }
+
+  return { success: true, messageId: info.messageId, previewUrl };
 };
 
 const sendOrderConfirmation = async (user, order) => {
   try {
-    const transport = await getTransporter();
     const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
     const trackUrl = `${frontendUrl}/track/${order.order_number}`;
 
@@ -122,19 +164,14 @@ const sendOrderConfirmation = async (user, order) => {
       </div>
     `;
 
-    const info = await transport.sendMail({
-      from: process.env.EMAIL_FROM || '"Contactless Cafe" <orders@contactlesscafe.com>',
+    const result = await sendEmail({
       to: user.email,
       subject: `Order Confirmation — ${order.order_number}`,
       html,
     });
 
-    const previewUrl = nodemailer.getTestMessageUrl(info);
-    if (previewUrl) {
-      console.log('📧 Email preview URL:', previewUrl);
-    }
-
-    return { success: true, messageId: info.messageId, previewUrl };
+    console.log('📧 Order confirmation email sent:', result.messageId || result.id);
+    return { success: true, ...result };
   } catch (error) {
     console.error('Email send error:', error.message);
     return { success: false, error: error.message };
@@ -143,7 +180,6 @@ const sendOrderConfirmation = async (user, order) => {
 
 const sendOrderStatusUpdate = async (user, order, oldStatus) => {
   try {
-    const transport = await getTransporter();
     const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
     const trackUrl = `${frontendUrl}/track/${order.order_number}`;
 
@@ -183,19 +219,14 @@ const sendOrderStatusUpdate = async (user, order, oldStatus) => {
       </div>
     `;
 
-    const info = await transport.sendMail({
-      from: process.env.EMAIL_FROM || '"Contactless Cafe" <orders@contactlesscafe.com>',
+    const result = await sendEmail({
       to: user.email,
       subject: `Order ${order.order_number} — ${order.status?.charAt(0).toUpperCase() + order.status?.slice(1)}`,
       html,
     });
 
-    const previewUrl = nodemailer.getTestMessageUrl(info);
-    if (previewUrl) {
-      console.log('📧 Status update email preview:', previewUrl);
-    }
-
-    return { success: true, messageId: info.messageId };
+    console.log('📧 Status update email sent:', result.messageId || result.id);
+    return { success: true, ...result };
   } catch (error) {
     console.error('Status email error:', error.message);
     return { success: false, error: error.message };
