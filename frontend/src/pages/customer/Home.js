@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { FiArrowRight, FiCamera, FiShoppingCart, FiCheck, FiPackage } from 'react-icons/fi';
+import { QRCodeSVG } from 'qrcode.react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { motion } from 'framer-motion';
@@ -292,6 +293,58 @@ const Home = () => {
                 </motion.div>
                 <h3 className="text-xl font-semibold mb-3">{step.title}</h3>
                 <p className="text-secondary-400 leading-relaxed">{step.desc}</p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Try QR Ordering Section */}
+      <section className="py-20 bg-secondary-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <FadeIn>
+            <h2 className="text-3xl font-bold text-secondary-900 text-center mb-4">Try QR Ordering Now</h2>
+            <p className="text-secondary-500 text-center mb-4">Scan any QR code below with your phone to experience the full ordering flow</p>
+            <p className="text-secondary-400 text-center text-sm mb-12">Or click the table links to open directly on this device</p>
+          </FadeIn>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 max-w-3xl mx-auto">
+            {[
+              { table: 'T1', section: 'Indoor', capacity: 4 },
+              { table: 'T2', section: 'Indoor', capacity: 2 },
+              { table: 'T3', section: 'Outdoor', capacity: 6 },
+            ].map((t, i) => (
+              <motion.div
+                key={t.table}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.15 }}
+                whileHover={{ y: -8, boxShadow: '0 20px 40px rgba(0,0,0,0.12)' }}
+                className="bg-white rounded-2xl shadow-md p-6 text-center"
+              >
+                <div className="mb-3">
+                  <span className="inline-block bg-primary-100 text-primary-700 text-xs font-semibold px-3 py-1 rounded-full">
+                    Table {t.table}
+                  </span>
+                </div>
+                <div className="flex justify-center mb-4">
+                  <div className="bg-white p-3 rounded-xl border border-secondary-100 shadow-sm">
+                    <QRCodeSVG
+                      value={`${window.location.origin}/scan?table=${t.table}`}
+                      size={140}
+                      level="M"
+                      includeMargin={false}
+                    />
+                  </div>
+                </div>
+                <p className="text-secondary-500 text-sm mb-1">{t.section} · {t.capacity} seats</p>
+                <Link
+                  to={`/scan?table=${t.table}`}
+                  className="inline-block mt-3 text-primary-500 hover:text-primary-600 text-sm font-medium"
+                >
+                  Open on this device →
+                </Link>
               </motion.div>
             ))}
           </div>
