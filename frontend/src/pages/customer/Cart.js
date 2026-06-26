@@ -8,7 +8,7 @@ import toast from 'react-hot-toast';
 
 const Cart = () => {
   const { items, updateQuantity, removeItem, totalPrice, clearCart, tableNumber, setTableNumber } = useCart();
-  const [orderType, setOrderType] = useState(tableNumber ? 'dine_in' : 'dine_in');
+  const [orderType, setOrderType] = useState('dine_in');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -112,8 +112,9 @@ const Cart = () => {
                   <div className="flex items-center space-x-3">
                     <motion.button
                       whileTap={{ scale: 0.8 }}
-                      onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                      className="w-8 h-8 rounded-full bg-secondary-100 hover:bg-secondary-200 flex items-center justify-center"
+                      onClick={() => item.quantity > 1 && updateQuantity(item.id, item.quantity - 1)}
+                      disabled={item.quantity <= 1}
+                      className="w-8 h-8 rounded-full bg-secondary-100 hover:bg-secondary-200 flex items-center justify-center disabled:opacity-40 disabled:cursor-not-allowed"
                     >
                       <FiMinus />
                     </motion.button>

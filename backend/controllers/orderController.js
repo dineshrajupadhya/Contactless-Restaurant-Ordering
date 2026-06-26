@@ -92,7 +92,7 @@ exports.getMyOrders = (req, res, next) => {
 
 exports.getOrder = (req, res, next) => {
   try {
-    const order = db.prepare('SELECT * FROM orders WHERE id = ?').get(req.params.id);
+    const order = db.prepare('SELECT * FROM orders WHERE order_number = ?').get(req.params.id);
     if (!order) {
       return res.status(404).json({ success: false, message: 'Order not found' });
     }
