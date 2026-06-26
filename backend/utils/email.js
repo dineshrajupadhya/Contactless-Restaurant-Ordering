@@ -1,7 +1,7 @@
 const nodemailer = require('nodemailer');
 
 const getTransporter = async () => {
-  if (process.env.RESEND_API_KEY) {
+  if (process.env.BREVO_API_KEY) {
     return null;
   }
 
@@ -31,32 +31,37 @@ const getTransporter = async () => {
   return transport;
 };
 
-const sendEmailViaResend = async ({ to, subject, html }) => {
-  const response = await fetch('https://api.resend.com/emails', {
+const sendEmailViaBrevo = async ({ to, subject, html }) => {
+  const senderEmail = process.env.SMTP_USER || 'noreply@contactlesscafe.com';
+  const senderName = process.env.EMAIL_FROM_NAME || 'Contactless Cafe';
+
+  const response = await fetch('https://api.brevo.com/v3/smtp/email', {
     method: 'POST',
     headers: {
-      'Authorization': `Bearer ${process.env.RESEND_API_KEY}`,
-      'Content-Type': 'application/json',
+      'accept': 'application/json',
+      'api-key': process.env.BREVO_API_KEY,
+      'content-type': 'application/json',
     },
     body: JSON.stringify({
-      from: process.env.EMAIL_FROM || 'Contactless Cafe <onboarding@resend.dev>',
-      to: [to],
+      sender: { email: senderEmail, name: senderName },
+      to: [{ email: to }],
       subject,
-      html,
+      htmlContent: html,
     }),
   });
 
+  const data = await response.json();
+
   if (!response.ok) {
-    const error = await response.text();
-    throw new Error(`Resend API error: ${response.status} - ${error}`);
+    throw new Error(`Brevo API error: ${response.status} - ${JSON.stringify(data)}`);
   }
 
-  return await response.json();
+  return { success: true, messageId: data.messageId };
 };
 
 const sendEmail = async ({ to, subject, html }) => {
-  if (process.env.RESEND_API_KEY) {
-    return await sendEmailViaResend({ to, subject, html });
+  if (process.env.BREVO_API_KEY) {
+    return await sendEmailViaBrevo({ to, subject, html });
   }
 
   const transport = await getTransporter();
