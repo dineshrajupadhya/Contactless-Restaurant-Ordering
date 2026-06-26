@@ -1,4 +1,5 @@
 const db = require('../config/database');
+const { sendOrderConfirmation, sendOrderStatusUpdate } = require('../utils/email');
 
 const generateOrderNumber = () => {
   const now = new Date();
@@ -68,6 +69,13 @@ exports.createOrder = (req, res, next) => {
 
     const order = db.prepare('SELECT * FROM orders WHERE id = ?').get(orderId);
     const orderItems = db.prepare('SELECT * FROM order_items WHERE order_id = ?').all(orderId);
+
+    const user = db.prepare('SELECT email, name FROM users WHERE id = ?').get(req.user.id);
+    if (user) {
+      sendOrderConfirmation(user, { ...order, items: orderItems }).catch(err =>
+        console.error('Order confirmation email failed:', err.message)
+      );
+    }
 
     res.status(201).json({ success: true, order: { ...order, items: orderItems } });
   } catch (error) {
@@ -168,6 +176,14 @@ exports.updateOrderStatus = (req, res, next) => {
     const updatedOrder = db.prepare('SELECT * FROM orders WHERE id = ?').get(orderId);
     const items = db.prepare('SELECT * FROM order_items WHERE order_id = ?').all(orderId);
 
+    const user = db.prepare('SELECT email, name FROM users WHERE id = ?').get(order.user_id);
+    if (user) {
+      const oldStatus = order.status;
+      sendOrderStatusUpdate(user, { ...updatedOrder, items }, oldStatus).catch(err =>
+        console.error('Status update email failed:', err.message)
+      );
+    }
+
     res.status(200).json({ success: true, order: { ...updatedOrder, items } });
   } catch (error) {
     next(error);
@@ -195,6 +211,13 @@ exports.cancelOrder = (req, res, next) => {
 
     const updatedOrder = db.prepare('SELECT * FROM orders WHERE id = ?').get(orderId);
     const items = db.prepare('SELECT * FROM order_items WHERE order_id = ?').all(orderId);
+
+    const user = db.prepare('SELECT email, name FROM users WHERE id = ?').get(order.user_id);
+    if (user) {
+      sendOrderStatusUpdate(user, { ...updatedOrder, items }, order.status).catch(err =>
+        console.error('Cancel email failed:', err.message)
+      );
+    }
 
     res.status(200).json({ success: true, order: { ...updatedOrder, items } });
   } catch (error) {
