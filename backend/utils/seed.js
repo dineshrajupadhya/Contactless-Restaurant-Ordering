@@ -97,11 +97,17 @@ const seed = async () => {
     console.log('Admin: admin@cafe.com / admin123');
     console.log('Customer: user@cafe.com / user123');
 
-    process.exit(0);
+    return true;
   } catch (error) {
     console.error('Seeding error:', error);
-    process.exit(1);
+    return false;
   }
 };
 
-seed();
+module.exports = seed;
+
+if (require.main === module) {
+  seed().then((success) => {
+    process.exit(success ? 0 : 1);
+  });
+}
