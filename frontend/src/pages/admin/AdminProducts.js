@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { FiPlus, FiEdit2, FiTrash2, FiX } from 'react-icons/fi';
+import React, { useState, useEffect, useRef } from 'react';
+import { FiPlus, FiEdit2, FiTrash2, FiX, FiUpload, FiImage } from 'react-icons/fi';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
 
@@ -9,11 +9,15 @@ const AdminProducts = () => {
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
+  const [uploading, setUploading] = useState(false);
+  const [imagePreview, setImagePreview] = useState(null);
+  const fileInputRef = useRef(null);
   const [formData, setFormData] = useState({
     name: '',
     description: '',
     price: '',
     category_id: '',
+    image_url: '',
     is_available: true,
   });
 
@@ -44,6 +48,37 @@ const AdminProducts = () => {
     }
   };
 
+  const handleImageUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please select an image file');
+      return;
+    }
+
+    setImagePreview(URL.createObjectURL(file));
+    setUploading(true);
+
+    try {
+      const uploadFormData = new FormData();
+      uploadFormData.append('image', file);
+
+      const response = await api.post('/products/upload', uploadFormData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+
+      setFormData({ ...formData, image_url: response.data.image_url });
+      toast.success('Image uploaded successfully');
+    } catch (error) {
+      console.error('Upload error:', error);
+      toast.error('Failed to upload image');
+      setImagePreview(null);
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -52,6 +87,7 @@ const AdminProducts = () => {
         description: formData.description,
         price: parseFloat(formData.price),
         category_id: parseInt(formData.category_id),
+        image_url: formData.image_url || null,
         is_available: formData.is_available ? 1 : 0,
       };
       if (editingProduct) {
@@ -78,8 +114,10 @@ const AdminProducts = () => {
       description: product.description || '',
       price: product.price.toString(),
       category_id: product.category_id?.toString() || '',
+      image_url: product.image_url || '',
       is_available: product.is_available === 1,
     });
+    setImagePreview(product.image_url || null);
     setShowModal(true);
   };
 
@@ -113,8 +151,10 @@ const AdminProducts = () => {
       description: '',
       price: '',
       category_id: '',
+      image_url: '',
       is_available: true,
     });
+    setImagePreview(null);
   };
 
   return (
@@ -145,6 +185,7 @@ const AdminProducts = () => {
             <table className="w-full">
               <thead className="bg-secondary-50">
                 <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-secondary-500 uppercase">Image</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-secondary-500 uppercase">Name</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-secondary-500 uppercase">Category</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-secondary-500 uppercase">Price</th>
@@ -157,6 +198,15 @@ const AdminProducts = () => {
                   const cat = categories.find(c => c.id === product.category_id);
                   return (
                     <tr key={product.id} className="hover:bg-secondary-50">
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        {product.image_url ? (
+                          <img src={product.image_url} alt={product.name} className="h-12 w-12 rounded-lg object-cover" />
+                        ) : (
+                          <div className="h-12 w-12 rounded-lg bg-secondary-100 flex items-center justify-center">
+                            <FiImage className="text-secondary-400" />
+                          </div>
+                        )}
+                      </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-secondary-900">{product.name}</td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-secondary-600">
                         {cat?.name || 'N/A'}
@@ -253,6 +303,47 @@ const AdminProducts = () => {
                     ))}
                   </select>
                 </div>
+                <div>
+                  <label className="block text-sm font-medium text-secondary-700 mb-1">Product Image</label>
+                  <div className="mt-1 flex items-center space-x-4">
+                    {imagePreview ? (
+                      <div className="relative">
+                        <img src={imagePreview} alt="Preview" className="h-24 w-24 rounded-lg object-cover border-2 border-secondary-200" />
+                        <button
+                          type="button"
+                          onClick={() => { setImagePreview(null); setFormData({ ...formData, image_url: '' }); }}
+                          className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+                        >
+                          <FiX size={12} />
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => fileInputRef.current.click()}
+                        disabled={uploading}
+                        className="h-24 w-24 border-2 border-dashed border-secondary-300 rounded-lg flex flex-col items-center justify-center text-secondary-400 hover:border-primary-400 hover:text-primary-400 transition-colors"
+                      >
+                        {uploading ? (
+                          <div className="animate-spin h-6 w-6 border-2 border-primary-500 border-t-transparent rounded-full" />
+                        ) : (
+                          <>
+                            <FiUpload size={20} />
+                            <span className="text-xs mt-1">Upload</span>
+                          </>
+                        )}
+                      </button>
+                    )}
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      className="hidden"
+                    />
+                  </div>
+                  <p className="text-xs text-secondary-400 mt-1">JPG, PNG or WebP. Max 5MB.</p>
+                </div>
                 <div className="flex items-center">
                   <input
                     type="checkbox"
@@ -273,7 +364,8 @@ const AdminProducts = () => {
                   </button>
                   <button
                     type="submit"
-                    className="flex-1 bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg transition-colors"
+                    disabled={uploading}
+                    className="flex-1 bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg transition-colors disabled:opacity-50"
                   >
                     {editingProduct ? 'Update' : 'Create'}
                   </button>
