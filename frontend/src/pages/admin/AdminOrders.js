@@ -111,7 +111,7 @@ const AdminOrders = () => {
                       {order.items?.length || 0} items
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-secondary-900">
-                      ₹${order.total_amount?.toFixed(2)}
+                      ₹{order.total_amount?.toFixed(2)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <select
@@ -177,14 +177,14 @@ const AdminOrders = () => {
                         <p className="text-sm text-secondary-500">Qty: {item.quantity}</p>
                       </div>
                       <span className="font-medium text-secondary-800">
-                        ₹${(item.price * item.quantity).toFixed(2)}
+                        ₹{(item.price * item.quantity).toFixed(2)}
                       </span>
                     </div>
                   ))}
                 </div>
                 <div className="border-t mt-4 pt-4 flex justify-between font-bold text-lg">
                   <span>Total</span>
-                  <span>₹${selectedOrder.total_amount?.toFixed(2)}</span>
+                  <span>₹{selectedOrder.total_amount?.toFixed(2)}</span>
                 </div>
               </div>
             </div>

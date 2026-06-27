@@ -188,7 +188,7 @@ const OrderTracking = () => {
                     <p className="text-sm text-secondary-500">Qty: {item.quantity}</p>
                   </div>
                   <span className="font-medium text-secondary-800">
-                    ₹${(item.price * item.quantity).toFixed(2)}
+                    ₹{(item.price * item.quantity).toFixed(2)}
                   </span>
                 </motion.div>
               ))}
@@ -200,7 +200,7 @@ const OrderTracking = () => {
               className="border-t mt-4 pt-4 flex justify-between font-bold text-lg"
             >
               <span>Total</span>
-              <span className="text-primary-500">₹${order?.total_amount?.toFixed(2)}</span>
+              <span className="text-primary-500">₹{order?.total_amount?.toFixed(2)}</span>
             </motion.div>
           </motion.div>
 

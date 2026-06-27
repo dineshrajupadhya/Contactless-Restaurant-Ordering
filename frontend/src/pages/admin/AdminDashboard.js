@@ -115,7 +115,7 @@ const AdminDashboard = () => {
                   >
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-secondary-900">#{order.order_number}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-secondary-600">{order.user_name || 'Guest'}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-secondary-900">₹${order.total_amount?.toFixed(2)}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-secondary-900">₹{order.total_amount?.toFixed(2)}</td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <motion.span
                         initial={{ scale: 0 }}
@@ -175,7 +175,7 @@ const AdminDashboard = () => {
                           <p className="text-xs text-secondary-500">{product.total_quantity} sold</p>
                         </div>
                       </div>
-                      <span className="font-semibold text-secondary-900">₹${product.total_revenue?.toFixed(2)}</span>
+                      <span className="font-semibold text-secondary-900">₹{product.total_revenue?.toFixed(2)}</span>
                     </motion.div>
                   ))}
                 </div>
@@ -194,7 +194,7 @@ const AdminDashboard = () => {
             <div className="p-6 space-y-4">
               <div className="flex justify-between items-center py-3 border-b">
                 <span className="text-secondary-600">Total Revenue</span>
-                <span className="text-xl font-bold text-green-600">₹${stats?.totalRevenue?.toFixed(2) || '0.00'}</span>
+                <span className="text-xl font-bold text-green-600">₹{stats?.totalRevenue?.toFixed(2) || '0.00'}</span>
               </div>
               <div className="flex justify-between items-center py-3 border-b">
                 <span className="text-secondary-600">Today's Orders</span>
@@ -207,7 +207,7 @@ const AdminDashboard = () => {
               <div className="flex justify-between items-center py-3">
                 <span className="text-secondary-600">Avg. Order Value</span>
                 <span className="text-xl font-bold text-secondary-900">
-                  ₹${stats?.totalOrders > 0 ? (stats?.totalRevenue / stats?.totalOrders).toFixed(2) : '0.00'}
+                  ₹{stats?.totalOrders > 0 ? (stats?.totalRevenue / stats?.totalOrders).toFixed(2) : '0.00'}
                 </span>
               </div>
             </div>

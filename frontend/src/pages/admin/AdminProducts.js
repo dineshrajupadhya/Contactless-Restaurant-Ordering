@@ -211,7 +211,7 @@ const AdminProducts = () => {
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-secondary-600">
                         {cat?.name || 'N/A'}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-secondary-900">₹${product.price?.toFixed(2)}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-secondary-900">₹{product.price?.toFixed(2)}</td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <button
                           onClick={() => toggleAvailability(product)}
