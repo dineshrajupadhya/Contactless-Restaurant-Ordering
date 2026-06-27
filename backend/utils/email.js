@@ -89,7 +89,7 @@ const sendOrderConfirmation = async (user, order) => {
       <tr>
         <td style="padding:10px 15px;border-bottom:1px solid #eee;color:#555;">${item.name}</td>
         <td style="padding:10px 15px;border-bottom:1px solid #eee;color:#555;text-align:center;">${item.quantity}</td>
-        <td style="padding:10px 15px;border-bottom:1px solid #eee;color:#555;text-align:right;">$${(item.price * item.quantity).toFixed(2)}</td>
+        <td style="padding:10px 15px;border-bottom:1px solid #eee;color:#555;text-align:right;">₹${(item.price * item.quantity).toFixed(2)}</td>
       </tr>
     `).join('');
 
@@ -142,15 +142,15 @@ const sendOrderConfirmation = async (user, order) => {
             <table style="width:100%;border-collapse:collapse;">
               <tr>
                 <td style="padding:4px 0;color:#888;">Subtotal</td>
-                <td style="padding:4px 0;color:#555;text-align:right;">$${order.subtotal?.toFixed(2)}</td>
+                <td style="padding:4px 0;color:#555;text-align:right;">₹${order.subtotal?.toFixed(2)}</td>
               </tr>
               <tr>
                 <td style="padding:4px 0;color:#888;">Tax (5%)</td>
-                <td style="padding:4px 0;color:#555;text-align:right;">$${order.tax?.toFixed(2)}</td>
+                <td style="padding:4px 0;color:#555;text-align:right;">₹${order.tax?.toFixed(2)}</td>
               </tr>
               <tr>
                 <td style="padding:8px 0;color:#333;font-weight:bold;font-size:18px;">Total</td>
-                <td style="padding:8px 0;color:#f97316;font-weight:bold;font-size:18px;text-align:right;">$${order.total_amount?.toFixed(2)}</td>
+                <td style="padding:8px 0;color:#f97316;font-weight:bold;font-size:18px;text-align:right;">₹${order.total_amount?.toFixed(2)}</td>
               </tr>
             </table>
           </div>

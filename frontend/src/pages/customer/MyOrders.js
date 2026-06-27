@@ -119,7 +119,7 @@ const MyOrders = () => {
                       <span className={`px-3 py-1 rounded-full text-xs font-medium ${statusColors[order.status] || 'bg-gray-100 text-gray-800'}`}>
                         {order.status?.charAt(0).toUpperCase() + order.status?.slice(1)}
                       </span>
-                      <span className="font-bold text-secondary-900">${order.total_amount?.toFixed(2)}</span>
+                      <span className="font-bold text-secondary-900">₹${order.total_amount?.toFixed(2)}</span>
                       {expandedOrder === order.id ? <FiChevronUp /> : <FiChevronDown />}
                     </div>
                   </div>
@@ -139,13 +139,13 @@ const MyOrders = () => {
                           {order.items?.map((item, index) => (
                             <div key={index} className="flex justify-between text-sm">
                               <span className="text-secondary-600">{item.name} x {item.quantity}</span>
-                              <span className="font-medium text-secondary-800">${(item.price * item.quantity).toFixed(2)}</span>
+                              <span className="font-medium text-secondary-800">₹${(item.price * item.quantity).toFixed(2)}</span>
                             </div>
                           ))}
                         </div>
                         <div className="border-t pt-3 flex justify-between font-semibold">
                           <span>Total</span>
-                          <span>${order.total_amount?.toFixed(2)}</span>
+                          <span>₹${order.total_amount?.toFixed(2)}</span>
                         </div>
                         <div className="mt-4 flex space-x-3">
                           <Link

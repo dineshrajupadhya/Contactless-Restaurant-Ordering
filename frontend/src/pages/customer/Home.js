@@ -254,7 +254,7 @@ const Home = () => {
                         </motion.span>
                       </div>
                       <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full">
-                        <span className="text-primary-600 font-bold text-sm">${product.price?.toFixed(2)}</span>
+                        <span className="text-primary-600 font-bold text-sm">₹${product.price?.toFixed(2)}</span>
                       </div>
                     </div>
                     <div className="p-5">
@@ -263,7 +263,7 @@ const Home = () => {
                         <p className="text-secondary-500 text-sm mt-1 line-clamp-2">{product.description}</p>
                       )}
                       <div className="flex justify-between items-center mt-4">
-                        <span className="text-primary-500 font-bold text-xl">${product.price?.toFixed(2)}</span>
+                        <span className="text-primary-500 font-bold text-xl">₹${product.price?.toFixed(2)}</span>
                         <Link
                           to="/menu"
                           className="text-primary-500 hover:text-primary-600 font-medium text-sm flex items-center space-x-1 group"

@@ -107,7 +107,7 @@ const Cart = () => {
                   </div>
                   <div className="flex-1">
                     <h3 className="font-semibold text-secondary-800">{item.name}</h3>
-                    <p className="text-primary-500 font-medium">${item.price.toFixed(2)}</p>
+                    <p className="text-primary-500 font-medium">₹${item.price.toFixed(2)}</p>
                   </div>
                   <div className="flex items-center space-x-3">
                     <motion.button
@@ -135,7 +135,7 @@ const Cart = () => {
                     </motion.button>
                   </div>
                   <div className="text-right">
-                    <p className="font-semibold text-secondary-800">${(item.price * item.quantity).toFixed(2)}</p>
+                    <p className="font-semibold text-secondary-800">₹${(item.price * item.quantity).toFixed(2)}</p>
                     <motion.button
                       whileHover={{ scale: 1.2, color: '#ef4444' }}
                       whileTap={{ scale: 0.8 }}
@@ -227,17 +227,17 @@ const Cart = () => {
                 <div className="flex justify-between text-secondary-600">
                   <span>Subtotal</span>
                   <motion.span key={totalPrice} initial={{ scale: 1.2 }} animate={{ scale: 1 }}>
-                    ${totalPrice.toFixed(2)}
+                    ₹${totalPrice.toFixed(2)}
                   </motion.span>
                 </div>
                 <div className="flex justify-between text-secondary-600">
                   <span>Tax (5%)</span>
-                  <span>${tax.toFixed(2)}</span>
+                  <span>₹${tax.toFixed(2)}</span>
                 </div>
                 <div className="border-t pt-3 flex justify-between font-bold text-lg text-secondary-900">
                   <span>Total</span>
                   <motion.span key={total} initial={{ scale: 1.2 }} animate={{ scale: 1 }} className="text-primary-500">
-                    ${total.toFixed(2)}
+                    ₹${total.toFixed(2)}
                   </motion.span>
                 </div>
               </div>
